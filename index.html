@@ -4,271 +4,418 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#0D1117">
+<meta name="theme-color" content="#F7F5F0">
 <title>생활영어 번역기</title>
 <link rel="manifest" href="manifest.json">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2358A6FF'/><text x='50' y='58' font-size='28' font-weight='bold' fill='white' text-anchor='middle' font-family='sans-serif'>한EN</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23E8563A'/><text x='50' y='55' font-size='24' font-weight='bold' fill='white' text-anchor='middle' dominant-baseline='middle' font-family='sans-serif'>한EN</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap');
+  :root {
+    --bg: #F7F5F0;
+    --bg-warm: #F0EDE6;
+    --surface: #FFFFFF;
+    --surface-alt: #FAF8F5;
+    --border: rgba(0,0,0,0.06);
+    --border-strong: rgba(0,0,0,0.1);
+    --text-primary: #1A1816;
+    --text-secondary: #6B6560;
+    --text-tertiary: #9E9890;
+    --accent: #E8563A;
+    --accent-light: #FFF0EC;
+    --accent-dark: #C4402A;
+    --teal: #1A8A7D;
+    --teal-light: #E6F5F3;
+    --gold: #B8860B;
+    --gold-light: #FFF8E7;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+    --shadow-lg: 0 12px 40px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+    --radius: 16px;
+    --radius-sm: 10px;
+    --radius-xs: 7px;
+  }
 
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { height: 100%; overflow-x: hidden; touch-action: manipulation; }
 
   body {
     min-height: 100vh; min-height: 100dvh;
-    background: linear-gradient(160deg, #0D1117 0%, #161B22 50%, #1A1F2B 100%);
-    font-family: 'Noto Sans KR', -apple-system, sans-serif;
-    color: #E6EDF3;
+    background: var(--bg);
+    font-family: 'Plus Jakarta Sans', 'Noto Sans KR', -apple-system, sans-serif;
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
   }
 
-  /* ═══ Lock Screen ═══ */
+  /* ═══════════ LOCK SCREEN ═══════════ */
   .lock-screen {
     position: fixed; inset: 0; z-index: 9999;
-    background: linear-gradient(160deg, #0D1117 0%, #161B22 50%, #1A1F2B 100%);
+    background: linear-gradient(175deg, #FDFCFA 0%, #F0EDE6 40%, #E8E4DB 100%);
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
-    transition: opacity 0.4s, transform 0.4s;
+    transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   }
   .lock-screen.unlocked {
-    opacity: 0; transform: scale(1.05);
+    opacity: 0; transform: scale(1.03);
     pointer-events: none;
   }
-  .lock-logo {
-    width: 72px; height: 72px; border-radius: 20px;
-    background: linear-gradient(135deg, #58A6FF, #BC8CFF);
+
+  .lock-brand {
+    width: 80px; height: 80px; border-radius: 24px;
+    background: linear-gradient(145deg, #E8563A, #D14A30);
     display: flex; align-items: center; justify-content: center;
-    font-weight: 800; font-size: 18px; color: #fff;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
+    box-shadow: 0 8px 32px rgba(232,86,58,0.25), 0 2px 8px rgba(232,86,58,0.15);
   }
+  .lock-brand svg { width: 36px; height: 36px; }
+
   .lock-title {
-    font-size: 20px; font-weight: 700; color: #E6EDF3;
-    margin-bottom: 6px;
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px; font-weight: 400; color: var(--text-primary);
+    margin-bottom: 6px; letter-spacing: -0.5px;
   }
   .lock-sub {
-    font-size: 13px; color: #6E7681; margin-bottom: 32px;
+    font-size: 14px; color: var(--text-tertiary); margin-bottom: 40px;
+    font-weight: 500;
   }
 
   .pin-dots {
-    display: flex; gap: 16px; margin-bottom: 36px;
+    display: flex; gap: 18px; margin-bottom: 40px;
   }
   .pin-dot {
-    width: 16px; height: 16px; border-radius: 50%;
-    border: 2px solid #30363D;
-    transition: all 0.2s;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--border-strong);
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   .pin-dot.filled {
-    background: #58A6FF; border-color: #58A6FF;
-    transform: scale(1.15);
+    background: var(--accent);
+    transform: scale(1.25);
+    box-shadow: 0 2px 10px rgba(232,86,58,0.35);
   }
   .pin-dot.error {
-    background: #F85149; border-color: #F85149;
-    animation: shake 0.4s ease;
+    background: #E53935;
+    animation: dotShake 0.4s ease;
   }
-  @keyframes shake {
+  @keyframes dotShake {
     0%, 100% { transform: translateX(0); }
-    20%, 60% { transform: translateX(-6px); }
-    40%, 80% { transform: translateX(6px); }
+    20%, 60% { transform: translateX(-5px); }
+    40%, 80% { transform: translateX(5px); }
   }
 
   .pin-pad {
     display: grid;
-    grid-template-columns: repeat(3, 72px);
-    gap: 14px;
-    justify-content: center;
+    grid-template-columns: repeat(3, 76px);
+    gap: 12px;
   }
   .pin-key {
-    width: 72px; height: 72px; border-radius: 50%;
-    background: #21262D; border: 1px solid #30363D;
-    color: #E6EDF3; font-size: 26px; font-weight: 600;
-    font-family: inherit;
+    width: 76px; height: 76px; border-radius: 50%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    font-size: 28px; font-weight: 600;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     display: flex; align-items: center; justify-content: center;
-    cursor: pointer; transition: all 0.15s;
+    cursor: pointer;
+    transition: all 0.15s;
+    box-shadow: var(--shadow-sm);
     -webkit-user-select: none; user-select: none;
   }
-  .pin-key:active { background: #58A6FF; border-color: #58A6FF; transform: scale(0.93); }
+  .pin-key:active {
+    background: var(--accent); color: #fff;
+    border-color: var(--accent);
+    transform: scale(0.92);
+    box-shadow: 0 2px 12px rgba(232,86,58,0.3);
+  }
   .pin-key.empty { visibility: hidden; }
-  .pin-key.del { font-size: 16px; color: #8B949E; }
-  .pin-key.del:active { background: #30363D; }
+  .pin-key.del { font-size: 20px; color: var(--text-tertiary); }
+  .pin-key.del:active { background: var(--bg-warm); color: var(--text-primary); }
 
   .lock-error-msg {
-    margin-top: 20px; font-size: 13px; color: #F85149;
-    height: 20px; text-align: center;
+    margin-top: 16px; font-size: 13px; color: #E53935;
+    height: 20px; text-align: center; font-weight: 500;
   }
 
-  /* ═══ Main App ═══ */
+  /* ═══════════ MAIN APP ═══════════ */
   .app { display: none; }
-  .app.visible { display: block; }
+  .app.visible { display: block; animation: appReveal 0.6s ease; }
+  @keyframes appReveal {
+    from { opacity: 0; } to { opacity: 1; }
+  }
 
   .container {
-    max-width: 640px; margin: 0 auto; padding: 0 16px 100px;
+    max-width: 560px; margin: 0 auto;
+    padding: 0 20px 100px;
   }
 
+  /* ─── Header ─── */
   header {
-    padding: 28px 0 20px;
-    display: flex; align-items: center; gap: 14px;
+    padding: 32px 0 28px;
+    display: flex; align-items: center; gap: 16px;
   }
   .logo {
-    width: 48px; height: 48px; border-radius: 14px;
-    background: linear-gradient(135deg, #58A6FF, #BC8CFF);
+    width: 50px; height: 50px; border-radius: 16px;
+    background: linear-gradient(145deg, #E8563A, #D14A30);
     display: flex; align-items: center; justify-content: center;
-    font-weight: 800; font-size: 13px; color: #fff;
-    flex-shrink: 0; letter-spacing: -0.5px;
+    flex-shrink: 0;
+    box-shadow: 0 4px 16px rgba(232,86,58,0.2);
   }
+  .logo svg { width: 24px; height: 24px; }
   header h1 {
-    font-size: 22px; font-weight: 800; letter-spacing: -0.8px;
-    background: linear-gradient(135deg, #E6EDF3, #8B949E);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    font-family: 'DM Serif Display', serif;
+    font-size: 24px; font-weight: 400; letter-spacing: -0.5px;
+    color: var(--text-primary);
   }
-  header p { font-size: 13px; color: #8B949E; margin-top: 3px; }
+  header p {
+    font-size: 13px; color: var(--text-tertiary); margin-top: 2px;
+    font-weight: 500;
+  }
 
-  .api-bar {
-    background: #21262D; border: 1px solid #30363D; border-radius: 12px;
-    padding: 12px 14px; margin-bottom: 8px;
-    display: flex; align-items: center; gap: 10px;
+  /* ─── Install Banner ─── */
+  .install-banner {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px; margin-bottom: 20px;
+    display: none; align-items: center; gap: 14px;
+    box-shadow: var(--shadow-sm);
   }
-  .api-bar label {
-    font-size: 11px; font-weight: 600; color: #8B949E;
-    white-space: nowrap; text-transform: uppercase; letter-spacing: 0.5px;
+  .install-banner.show { display: flex; }
+  .install-banner p { flex: 1; font-size: 13px; color: var(--text-secondary); line-height: 1.5; font-weight: 500; }
+  .install-btn {
+    padding: 9px 18px; border-radius: var(--radius-xs); border: none;
+    background: var(--accent); color: #fff; font-size: 13px;
+    font-family: inherit; font-weight: 700; cursor: pointer;
+    white-space: nowrap; box-shadow: 0 2px 8px rgba(232,86,58,0.25);
   }
-  .api-bar input {
+  .dismiss-btn {
+    background: none; border: none; color: var(--text-tertiary);
+    font-size: 18px; cursor: pointer; padding: 4px;
+  }
+
+  /* ─── API Key ─── */
+  .api-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-sm);
+  }
+  .api-top {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .api-label {
+    font-size: 12px; font-weight: 700; color: var(--text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.8px;
+  }
+  .api-status {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 600; color: var(--text-tertiary);
+  }
+  .api-status .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #D4D0CA; transition: background 0.3s;
+  }
+  .api-status .dot.active { background: #22C55E; box-shadow: 0 0 8px rgba(34,197,94,0.4); }
+  .api-input-row {
+    display: flex; gap: 10px; align-items: center;
+  }
+  .api-input-row input {
     flex: 1; min-width: 0;
-    background: #0D1117; border: 1px solid #30363D; border-radius: 8px;
-    padding: 8px 10px; color: #E6EDF3; font-size: 13px; font-family: monospace;
-    outline: none;
+    background: var(--bg); border: 1.5px solid var(--border-strong);
+    border-radius: var(--radius-xs);
+    padding: 11px 14px; color: var(--text-primary);
+    font-size: 14px; font-family: 'SF Mono', 'Fira Code', monospace;
+    outline: none; transition: border-color 0.2s;
   }
-  .api-bar input:focus { border-color: #58A6FF; }
-  .api-bar .status {
-    width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
-    background: #30363D; transition: background 0.3s;
+  .api-input-row input:focus { border-color: var(--accent); }
+  .api-input-row input::placeholder { color: var(--text-tertiary); font-family: inherit; }
+  .api-bottom {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 10px;
   }
-  .api-bar .status.active { background: #3FB950; }
-  .api-info {
-    font-size: 11px; color: #6E7681; margin-bottom: 18px; padding-left: 4px; line-height: 1.6;
+  .save-toggle {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 12px; color: var(--text-tertiary); cursor: pointer; font-weight: 500;
   }
-  .api-info a { color: #58A6FF; text-decoration: none; }
+  .save-toggle input { accent-color: var(--accent); cursor: pointer; }
+  .api-link {
+    font-size: 11px; color: var(--accent); text-decoration: none;
+    font-weight: 600;
+  }
 
-  .save-row {
-    display: flex; align-items: center; gap: 8px;
-    margin: -4px 0 16px 4px;
+  /* ─── Input Area ─── */
+  .input-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border-strong);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    transition: border-color 0.2s, box-shadow 0.2s;
   }
-  .save-row label { font-size: 12px; color: #6E7681; cursor: pointer; }
-  .save-row input[type=checkbox] { accent-color: #58A6FF; cursor: pointer; }
-
-  .input-box {
-    position: relative; background: #21262D; border-radius: 16px;
-    border: 1px solid #30363D; overflow: hidden; display: flex; align-items: flex-end;
+  .input-card:focus-within {
+    border-color: var(--accent);
+    box-shadow: var(--shadow-md), 0 0 0 3px rgba(232,86,58,0.08);
   }
-  .input-box textarea {
-    flex: 1; background: transparent; border: none; outline: none;
-    color: #E6EDF3; font-size: 16px; padding: 14px 56px 14px 16px;
-    font-family: inherit; resize: none; line-height: 1.5;
+  .input-card textarea {
+    width: 100%; background: transparent; border: none; outline: none;
+    color: var(--text-primary); font-size: 17px;
+    padding: 18px 20px 8px;
+    font-family: 'Noto Sans KR', 'Plus Jakarta Sans', sans-serif;
+    resize: none; line-height: 1.6;
+    font-weight: 500;
   }
-  .input-box textarea::placeholder { color: #484F58; }
+  .input-card textarea::placeholder { color: #C5C0B8; }
+  .input-bottom {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 12px 12px 20px;
+  }
+  .char-count {
+    font-size: 11px; color: var(--text-tertiary); font-weight: 500;
+  }
   .send-btn {
-    position: absolute; right: 8px; bottom: 8px;
-    width: 40px; height: 40px; border-radius: 12px;
-    background: linear-gradient(135deg, #58A6FF, #BC8CFF);
+    width: 44px; height: 44px; border-radius: 14px;
+    background: linear-gradient(145deg, #E8563A, #D14A30);
     border: none; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
-    transition: opacity 0.2s;
+    transition: all 0.2s;
+    box-shadow: 0 3px 12px rgba(232,86,58,0.3);
   }
-  .send-btn:disabled { opacity: 0.4; cursor: default; }
-  .send-btn:active:not(:disabled) { transform: scale(0.95); }
+  .send-btn:disabled {
+    background: #D4D0CA; box-shadow: none; cursor: default;
+  }
+  .send-btn:active:not(:disabled) { transform: scale(0.92); }
   .send-btn svg { width: 20px; height: 20px; }
 
-  .error-msg { color: #F85149; font-size: 13px; margin-top: 8px; padding-left: 4px; }
+  .error-msg {
+    color: #E53935; font-size: 13px; margin-top: 10px;
+    padding: 10px 16px; background: #FFF0F0;
+    border-radius: var(--radius-xs); font-weight: 500;
+  }
 
-  .chips-section { margin-top: 18px; margin-bottom: 24px; }
+  /* ─── Example Chips ─── */
+  .chips-section { margin-top: 22px; margin-bottom: 28px; }
   .chips-label {
-    font-size: 11px; color: #6E7681; margin-bottom: 10px;
-    font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+    font-size: 11px; color: var(--text-tertiary); margin-bottom: 12px;
+    font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;
   }
   .chips-wrap {
     display: flex; flex-wrap: wrap; gap: 8px;
-    overflow-x: auto; -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
   }
-  .chips-wrap::-webkit-scrollbar { display: none; }
   .chip {
-    padding: 8px 14px; border-radius: 20px;
-    background: #21262D; border: 1px solid #30363D;
-    color: #8B949E; font-size: 13px; font-family: inherit;
-    cursor: pointer; transition: all 0.2s; white-space: nowrap;
-    flex-shrink: 0;
+    padding: 9px 16px; border-radius: 100px;
+    background: var(--surface); border: 1.5px solid var(--border-strong);
+    color: var(--text-secondary); font-size: 13px; font-family: inherit;
+    cursor: pointer; transition: all 0.2s;
+    white-space: nowrap; font-weight: 500;
+    box-shadow: var(--shadow-sm);
   }
-  .chip:active { background: #30363D; border-color: #58A6FF; color: #C9D1D9; }
+  .chip:active {
+    background: var(--accent-light); border-color: var(--accent);
+    color: var(--accent); transform: scale(0.96);
+  }
 
-  .results { display: flex; flex-direction: column; gap: 16px; }
+  /* ─── Result Cards ─── */
+  .results { display: flex; flex-direction: column; gap: 18px; }
 
   .card {
-    background: #21262D; border-radius: 16px; border: 1px solid #30363D;
-    padding: 20px; animation: fadeUp 0.35s ease;
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    animation: cardIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(16px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
   }
 
-  .card-top {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 14px; gap: 10px;
+  .card-header {
+    padding: 20px 20px 16px;
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 12px; border-bottom: 1px solid var(--border);
   }
-  .korean-text { font-size: 17px; font-weight: 700; color: #E6EDF3; }
+  .korean-text {
+    font-size: 18px; font-weight: 700; color: var(--text-primary);
+    font-family: 'Noto Sans KR', sans-serif;
+    line-height: 1.4;
+  }
   .badge {
-    font-size: 10px; font-weight: 600; padding: 4px 9px;
-    border-radius: 20px; white-space: nowrap; flex-shrink: 0;
+    font-size: 10px; font-weight: 700; padding: 5px 10px;
+    border-radius: 100px; white-space: nowrap; flex-shrink: 0;
+    text-transform: uppercase; letter-spacing: 0.5px;
   }
 
-  .main-box {
-    background: linear-gradient(135deg, rgba(88,166,255,0.08), rgba(188,140,255,0.08));
-    border-radius: 12px; padding: 16px; margin-bottom: 14px;
-    border: 1px solid rgba(88,166,255,0.15);
+  .main-result {
+    margin: 20px 20px 0;
+    padding: 20px;
+    background: linear-gradient(145deg, var(--accent-light), #FFF6F3);
+    border-radius: 14px;
+    border-left: 4px solid var(--accent);
   }
   .main-label {
-    font-size: 10px; font-weight: 700; color: #58A6FF;
-    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;
+    font-size: 10px; font-weight: 800; color: var(--accent);
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;
   }
   .main-text {
-    font-size: 20px; font-weight: 700; color: #F0F6FC;
-    line-height: 1.4; letter-spacing: -0.3px; word-break: break-word;
+    font-size: 22px; font-weight: 800; color: var(--text-primary);
+    line-height: 1.35; letter-spacing: -0.3px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    word-break: break-word;
   }
 
+  .alt-section { padding: 18px 20px 0; }
   .alt-label {
-    font-size: 10px; font-weight: 700; color: #6E7681;
-    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
+    font-size: 10px; font-weight: 800; color: var(--text-tertiary);
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;
   }
-  .alt-section { margin-bottom: 14px; }
   .alt-row {
-    display: flex; flex-direction: column; gap: 4px;
-    padding: 10px 0; border-bottom: 1px solid #30363D;
+    display: flex; flex-direction: column; gap: 3px;
+    padding: 12px 0; border-bottom: 1px solid var(--border);
   }
   .alt-row:last-child { border-bottom: none; }
-  .alt-top { display: flex; align-items: center; gap: 8px; }
-  .alt-icon { font-size: 15px; }
-  .alt-expr { font-size: 15px; font-weight: 600; color: #C9D1D9; word-break: break-word; }
-  .alt-context { font-size: 12px; color: #6E7681; line-height: 1.4; padding-left: 27px; }
+  .alt-top { display: flex; align-items: center; gap: 10px; }
+  .alt-icon { font-size: 16px; width: 28px; height: 28px; border-radius: 8px; background: var(--bg); display: flex; align-items: center; justify-content: center; }
+  .alt-expr {
+    font-size: 16px; font-weight: 700; color: var(--text-primary);
+    word-break: break-word;
+  }
+  .alt-context {
+    font-size: 12px; color: var(--text-tertiary); line-height: 1.5;
+    padding-left: 38px; font-weight: 500;
+  }
 
   .note-box {
-    display: flex; align-items: flex-start; gap: 10px;
-    background: rgba(187,128,9,0.06); border: 1px solid rgba(187,128,9,0.15);
-    border-radius: 10px; padding: 12px;
+    display: flex; align-items: flex-start; gap: 12px;
+    margin: 16px 20px 0;
+    background: var(--gold-light);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    border-left: 3px solid var(--gold);
   }
-  .note-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
-  .note-text { font-size: 13px; color: #E3B341; line-height: 1.55; }
+  .note-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .note-text { font-size: 13px; color: #8B7335; line-height: 1.6; font-weight: 500; }
 
+  .card-footer {
+    padding: 14px 20px 18px;
+    display: flex; gap: 8px;
+  }
   .copy-btn {
-    margin-top: 12px; padding: 8px 16px; border-radius: 8px;
-    background: #30363D; border: 1px solid #484F58;
-    color: #8B949E; font-size: 12px; font-family: inherit;
+    padding: 9px 16px; border-radius: var(--radius-xs);
+    background: var(--bg); border: 1px solid var(--border-strong);
+    color: var(--text-secondary); font-size: 12px; font-family: inherit;
     cursor: pointer; transition: all 0.2s;
-    display: flex; align-items: center; gap: 6px;
+    display: flex; align-items: center; gap: 6px; font-weight: 600;
   }
-  .copy-btn:active { background: #3FB950; color: #fff; border-color: #3FB950; }
-  .copy-btn.copied { background: #238636; color: #fff; border-color: #238636; }
+  .copy-btn:active { background: var(--teal-light); border-color: var(--teal); color: var(--teal); }
+  .copy-btn.copied { background: var(--teal-light); border-color: var(--teal); color: var(--teal); }
 
+  /* ─── Spinner ─── */
   @keyframes spin { to { transform: rotate(360deg); } }
   .spinner {
     width: 20px; height: 20px;
@@ -277,32 +424,36 @@
     display: inline-block; animation: spin 0.7s linear infinite;
   }
 
-  .install-banner {
-    background: linear-gradient(135deg, rgba(88,166,255,0.1), rgba(188,140,255,0.1));
-    border: 1px solid rgba(88,166,255,0.2);
-    border-radius: 12px; padding: 14px 16px; margin-bottom: 18px;
-    display: none; align-items: center; gap: 12px;
+  /* ─── Decorative ─── */
+  .bg-decoration {
+    position: fixed; top: -120px; right: -80px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(232,86,58,0.06) 0%, transparent 70%);
+    pointer-events: none; z-index: -1;
   }
-  .install-banner.show { display: flex; }
-  .install-banner p { flex: 1; font-size: 13px; color: #C9D1D9; line-height: 1.4; }
-  .install-btn {
-    padding: 8px 16px; border-radius: 8px; border: none;
-    background: #58A6FF; color: #fff; font-size: 13px;
-    font-family: inherit; font-weight: 600; cursor: pointer; white-space: nowrap;
-  }
-  .dismiss-btn {
-    background: none; border: none; color: #6E7681;
-    font-size: 18px; cursor: pointer; padding: 4px;
+  .bg-decoration2 {
+    position: fixed; bottom: -100px; left: -60px;
+    width: 250px; height: 250px;
+    background: radial-gradient(circle, rgba(26,138,125,0.05) 0%, transparent 70%);
+    pointer-events: none; z-index: -1;
   }
 </style>
 </head>
 <body>
 
+<div class="bg-decoration"></div>
+<div class="bg-decoration2"></div>
+
 <!-- ═══ Lock Screen ═══ -->
 <div class="lock-screen" id="lockScreen">
-  <div class="lock-logo">🔒</div>
+  <div class="lock-brand">
+    <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M8 10h6v16H8V10zm2 2v12h2V12h-2z" fill="white" opacity="0.9"/>
+      <path d="M18 10h2l4 10.5L28 10h2v16h-2V15.5L24.5 25h-1L20 15.5V26h-2V10z" fill="white"/>
+    </svg>
+  </div>
   <div class="lock-title">생활영어 번역기</div>
-  <div class="lock-sub">비밀번호 4자리를 입력하세요</div>
+  <div class="lock-sub">비밀번호를 입력하세요</div>
 
   <div class="pin-dots">
     <div class="pin-dot" id="dot0"></div>
@@ -333,7 +484,12 @@
 <div class="app" id="mainApp">
 <div class="container">
   <header>
-    <div class="logo">한→EN</div>
+    <div class="logo">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M5 7h4v10H5V7zm1.2 1.2v7.6h1.6V8.2H6.2z" fill="white" opacity="0.9"/>
+        <path d="M12 7h1.2l2.4 6.3L18 7h1.2v10H18V10.3l-2.1 6h-.6L13.2 10.3V17H12V7z" fill="white"/>
+      </svg>
+    </div>
     <div>
       <h1>생활영어 번역기</h1>
       <p>미국인이 실제로 쓰는 자연스러운 영어</p>
@@ -346,35 +502,48 @@
     <button class="dismiss-btn" id="dismissBtn">✕</button>
   </div>
 
-  <div class="api-bar">
-    <label>API Key</label>
-    <input type="password" id="apiKey" placeholder="sk-ant-..." />
-    <div class="status" id="keyStatus"></div>
+  <!-- API Key -->
+  <div class="api-section">
+    <div class="api-top">
+      <span class="api-label">API Key</span>
+      <div class="api-status">
+        <div class="dot" id="keyStatus"></div>
+        <span id="statusText">미연결</span>
+      </div>
+    </div>
+    <div class="api-input-row">
+      <input type="password" id="apiKey" placeholder="sk-ant-..." />
+    </div>
+    <div class="api-bottom">
+      <label class="save-toggle">
+        <input type="checkbox" id="saveKey" checked>
+        키 기억하기
+      </label>
+      <a class="api-link" href="https://console.anthropic.com/settings/keys" target="_blank">키 발급받기 →</a>
+    </div>
   </div>
-  <div class="save-row">
-    <input type="checkbox" id="saveKey" checked>
-    <label for="saveKey">API 키 기억하기</label>
-  </div>
-  <p class="api-info">
-    <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a>에서 API 키를 발급받으세요.
-  </p>
 
-  <div class="input-box">
-    <textarea id="inputText" rows="2" placeholder="번역할 한국어를 입력하세요..."></textarea>
-    <button class="send-btn" id="sendBtn" disabled>
-      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="22" y1="2" x2="11" y2="13"/>
-        <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-      </svg>
-    </button>
+  <!-- Input -->
+  <div class="input-card">
+    <textarea id="inputText" rows="3" placeholder="번역할 한국어를 입력하세요..."></textarea>
+    <div class="input-bottom">
+      <span class="char-count" id="charCount">0자</span>
+      <button class="send-btn" id="sendBtn" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </button>
+    </div>
   </div>
   <p class="error-msg" id="errorMsg" style="display:none"></p>
 
+  <!-- Chips -->
   <div class="chips-section">
-    <p class="chips-label">이런 표현을 시도해보세요</p>
+    <p class="chips-label">예시 표현</p>
     <div class="chips-wrap" id="chips"></div>
   </div>
 
+  <!-- Results -->
   <div class="results" id="results"></div>
 </div>
 </div>
@@ -385,7 +554,6 @@ const CORRECT_PIN = "0818";
 let currentPin = "";
 let attempts = 0;
 
-// Check if already authenticated this session
 if (sessionStorage.getItem("unlocked") === "true") {
   document.getElementById("lockScreen").classList.add("unlocked");
   document.getElementById("mainApp").classList.add("visible");
@@ -395,59 +563,43 @@ function pinInput(num) {
   if (currentPin.length >= 4) return;
   currentPin += num;
   updateDots();
-
   if (currentPin.length === 4) {
     setTimeout(() => {
-      if (currentPin === CORRECT_PIN) {
-        unlockApp();
-      } else {
+      if (currentPin === CORRECT_PIN) { unlockApp(); }
+      else {
         attempts++;
         showPinError();
         currentPin = "";
-        setTimeout(() => {
-          updateDots();
-          document.getElementById("lockError").textContent = "";
-        }, 600);
+        setTimeout(() => { updateDots(); document.getElementById("lockError").textContent = ""; }, 600);
       }
     }, 200);
   }
 }
-
 function pinDelete() {
-  if (currentPin.length > 0) {
-    currentPin = currentPin.slice(0, -1);
-    updateDots();
-  }
+  if (currentPin.length > 0) { currentPin = currentPin.slice(0, -1); updateDots(); }
 }
-
 function updateDots() {
   for (let i = 0; i < 4; i++) {
-    const dot = document.getElementById("dot" + i);
-    dot.classList.toggle("filled", i < currentPin.length);
-    dot.classList.remove("error");
+    const d = document.getElementById("dot" + i);
+    d.classList.toggle("filled", i < currentPin.length);
+    d.classList.remove("error");
   }
 }
-
 function showPinError() {
   for (let i = 0; i < 4; i++) {
-    const dot = document.getElementById("dot" + i);
-    dot.classList.remove("filled");
-    dot.classList.add("error");
+    const d = document.getElementById("dot" + i);
+    d.classList.remove("filled"); d.classList.add("error");
   }
-  const msg = attempts >= 3 ? "비밀번호를 다시 확인해주세요" : "비밀번호가 틀렸습니다";
-  document.getElementById("lockError").textContent = msg;
+  document.getElementById("lockError").textContent = attempts >= 3 ? "비밀번호를 다시 확인해주세요" : "비밀번호가 틀렸습니다";
 }
-
 function unlockApp() {
   sessionStorage.setItem("unlocked", "true");
   document.getElementById("lockScreen").classList.add("unlocked");
   document.getElementById("mainApp").classList.add("visible");
-  setTimeout(() => {
-    document.getElementById("lockScreen").style.display = "none";
-  }, 400);
+  setTimeout(() => { document.getElementById("lockScreen").style.display = "none"; }, 500);
 }
 
-// ─── Main App ───
+// ─── App Logic ───
 const SYSTEM_PROMPT = `You are an expert translator who helps Korean speakers communicate naturally in American English.
 
 Your job:
@@ -481,30 +633,37 @@ const EXAMPLES = [
 ];
 
 const CATEGORY_MAP = {
-  "sign/notice": { bg: "#FFF3E0", text: "#E65100", label: "표지/안내문" },
-  "spoken":      { bg: "#E8F5E9", text: "#2E7D32", label: "회화" },
-  "written":     { bg: "#E3F2FD", text: "#1565C0", label: "문서/서면" },
-  "texting":     { bg: "#F3E5F5", text: "#7B1FA2", label: "문자/채팅" },
+  "sign/notice": { bg: "#FFF0EC", text: "#C4402A", label: "표지판" },
+  "spoken":      { bg: "#E6F5F3", text: "#1A8A7D", label: "회화" },
+  "written":     { bg: "#EFF1FE", text: "#4F46E5", label: "서면" },
+  "texting":     { bg: "#F5F0FF", text: "#7C3AED", label: "문자" },
 };
-const FORMALITY_ICON = { formal: "👔", casual: "😊", sign: "🪧", written: "📝" };
+const FORMALITY_ICON = { formal: "👔", casual: "💬", sign: "🪧", written: "📝" };
 
 const apiKeyInput = document.getElementById("apiKey");
-const keyStatus   = document.getElementById("keyStatus");
-const inputText   = document.getElementById("inputText");
-const sendBtn     = document.getElementById("sendBtn");
-const errorMsg    = document.getElementById("errorMsg");
-const resultsDiv  = document.getElementById("results");
-const chipsDiv    = document.getElementById("chips");
-const saveKeyBox  = document.getElementById("saveKey");
+const keyStatus = document.getElementById("keyStatus");
+const statusText = document.getElementById("statusText");
+const inputText = document.getElementById("inputText");
+const sendBtn = document.getElementById("sendBtn");
+const errorMsg = document.getElementById("errorMsg");
+const resultsDiv = document.getElementById("results");
+const chipsDiv = document.getElementById("chips");
+const saveKeyBox = document.getElementById("saveKey");
+const charCount = document.getElementById("charCount");
 
 let loading = false;
 
 const savedKey = localStorage.getItem("anthropic_api_key");
-if (savedKey) { apiKeyInput.value = savedKey; keyStatus.classList.add("active"); }
+if (savedKey) {
+  apiKeyInput.value = savedKey;
+  keyStatus.classList.add("active");
+  statusText.textContent = "연결됨";
+}
 
 apiKeyInput.addEventListener("input", () => {
   const hasKey = apiKeyInput.value.trim().length > 10;
   keyStatus.classList.toggle("active", hasKey);
+  statusText.textContent = hasKey ? "연결됨" : "미연결";
   if (saveKeyBox.checked && hasKey) localStorage.setItem("anthropic_api_key", apiKeyInput.value.trim());
   updateSendBtn();
 });
@@ -512,15 +671,16 @@ apiKeyInput.addEventListener("input", () => {
 saveKeyBox.addEventListener("change", () => {
   if (saveKeyBox.checked && apiKeyInput.value.trim().length > 10) {
     localStorage.setItem("anthropic_api_key", apiKeyInput.value.trim());
-  } else if (!saveKeyBox.checked) {
-    localStorage.removeItem("anthropic_api_key");
-  }
+  } else if (!saveKeyBox.checked) { localStorage.removeItem("anthropic_api_key"); }
 });
 
 function updateSendBtn() {
   sendBtn.disabled = loading || !inputText.value.trim() || apiKeyInput.value.trim().length < 10;
 }
-inputText.addEventListener("input", updateSendBtn);
+inputText.addEventListener("input", () => {
+  updateSendBtn();
+  charCount.textContent = inputText.value.length + "자";
+});
 inputText.addEventListener("keydown", (e) => {
   if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); if (!sendBtn.disabled) translate(inputText.value); }
 });
@@ -528,9 +688,8 @@ sendBtn.addEventListener("click", () => { if (!sendBtn.disabled) translate(input
 
 EXAMPLES.forEach(ex => {
   const btn = document.createElement("button");
-  btn.className = "chip";
-  btn.textContent = ex;
-  btn.addEventListener("click", () => { inputText.value = ex; translate(ex); });
+  btn.className = "chip"; btn.textContent = ex;
+  btn.addEventListener("click", () => { inputText.value = ex; charCount.textContent = ex.length + "자"; translate(ex); });
   chipsDiv.appendChild(btn);
 });
 
@@ -556,24 +715,21 @@ async function translate(text) {
         messages: [{ role: "user", content: text.trim() }],
       }),
     });
-
     if (!res.ok) {
       const errData = await res.json().catch(() => ({}));
       throw new Error(errData.error?.message || `API 오류 (${res.status})`);
     }
-
     const data = await res.json();
     const raw = (data.content || []).map(i => i.text || "").join("");
-    const cleaned = raw.replace(/```json|```/g, "").trim();
-    const parsed = JSON.parse(cleaned);
+    const parsed = JSON.parse(raw.replace(/```json|```/g, "").trim());
     renderCard(parsed);
-    inputText.value = "";
+    inputText.value = ""; charCount.textContent = "0자";
   } catch (err) {
     errorMsg.textContent = err.message || "번역 중 오류가 발생했습니다.";
     errorMsg.style.display = "block";
   } finally {
     loading = false; updateSendBtn();
-    sendBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>`;
+    sendBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>`;
   }
 }
 
@@ -600,17 +756,19 @@ function renderCard(r) {
   const card = document.createElement("div");
   card.className = "card";
   card.innerHTML = `
-    <div class="card-top">
+    <div class="card-header">
       <span class="korean-text">${esc(r.korean_input)}</span>
       <span class="badge" style="background:${cat.bg};color:${cat.text}">${cat.label}</span>
     </div>
-    <div class="main-box">
-      <div class="main-label">가장 자연스러운 표현</div>
+    <div class="main-result">
+      <div class="main-label">Best Expression</div>
       <div class="main-text">${esc(r.main_translation)}</div>
     </div>
     ${altsHTML}
     ${noteHTML}
-    <button class="copy-btn" onclick="copyText(this, '${esc(allText).replace(/'/g,"\\'")}')">📋 표현 복사하기</button>
+    <div class="card-footer">
+      <button class="copy-btn" onclick="copyText(this, '${esc(allText).replace(/'/g,"\\'")}')">📋 복사</button>
+    </div>
   `;
   resultsDiv.prepend(card);
   card.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -618,14 +776,14 @@ function renderCard(r) {
 
 function copyText(btn, text) {
   navigator.clipboard.writeText(text.replace(/\\n/g, '\n')).then(() => {
-    btn.classList.add("copied"); btn.textContent = "✅ 복사됨!";
-    setTimeout(() => { btn.classList.remove("copied"); btn.innerHTML = "📋 표현 복사하기"; }, 1500);
+    btn.classList.add("copied"); btn.textContent = "✅ 복사됨";
+    setTimeout(() => { btn.classList.remove("copied"); btn.innerHTML = "📋 복사"; }, 1500);
   });
 }
 
 function esc(str) { const d = document.createElement("div"); d.textContent = str || ""; return d.innerHTML; }
 
-// ─── PWA Install ───
+// ─── PWA ───
 let deferredPrompt;
 window.addEventListener("beforeinstallprompt", (e) => {
   e.preventDefault(); deferredPrompt = e;
@@ -641,7 +799,6 @@ document.getElementById("installBtn").addEventListener("click", async () => {
 document.getElementById("dismissBtn").addEventListener("click", () => {
   document.getElementById("installBanner").classList.remove("show");
 });
-
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js").catch(() => {});
 }
