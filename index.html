@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0D1117">
+<title>생활영어 번역기</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2358A6FF'/><text x='50' y='58' font-size='28' font-weight='bold' fill='white' text-anchor='middle' font-family='sans-serif'>한EN</text></svg>">
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow-x: hidden; touch-action: manipulation; }
+
+  body {
+    min-height: 100vh; min-height: 100dvh;
+    background: linear-gradient(160deg, #0D1117 0%, #161B22 50%, #1A1F2B 100%);
+    font-family: 'Noto Sans KR', -apple-system, sans-serif;
+    color: #E6EDF3;
+  }
+
+  /* ═══ Lock Screen ═══ */
+  .lock-screen {
+    position: fixed; inset: 0; z-index: 9999;
+    background: linear-gradient(160deg, #0D1117 0%, #161B22 50%, #1A1F2B 100%);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    transition: opacity 0.4s, transform 0.4s;
+  }
+  .lock-screen.unlocked {
+    opacity: 0; transform: scale(1.05);
+    pointer-events: none;
+  }
+  .lock-logo {
+    width: 72px; height: 72px; border-radius: 20px;
+    background: linear-gradient(135deg, #58A6FF, #BC8CFF);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 18px; color: #fff;
+    margin-bottom: 20px;
+  }
+  .lock-title {
+    font-size: 20px; font-weight: 700; color: #E6EDF3;
+    margin-bottom: 6px;
+  }
+  .lock-sub {
+    font-size: 13px; color: #6E7681; margin-bottom: 32px;
+  }
+
+  .pin-dots {
+    display: flex; gap: 16px; margin-bottom: 36px;
+  }
+  .pin-dot {
+    width: 16px; height: 16px; border-radius: 50%;
+    border: 2px solid #30363D;
+    transition: all 0.2s;
+  }
+  .pin-dot.filled {
+    background: #58A6FF; border-color: #58A6FF;
+    transform: scale(1.15);
+  }
+  .pin-dot.error {
+    background: #F85149; border-color: #F85149;
+    animation: shake 0.4s ease;
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
+  }
+
+  .pin-pad {
+    display: grid;
+    grid-template-columns: repeat(3, 72px);
+    gap: 14px;
+    justify-content: center;
+  }
+  .pin-key {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: #21262D; border: 1px solid #30363D;
+    color: #E6EDF3; font-size: 26px; font-weight: 600;
+    font-family: inherit;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.15s;
+    -webkit-user-select: none; user-select: none;
+  }
+  .pin-key:active { background: #58A6FF; border-color: #58A6FF; transform: scale(0.93); }
+  .pin-key.empty { visibility: hidden; }
+  .pin-key.del { font-size: 16px; color: #8B949E; }
+  .pin-key.del:active { background: #30363D; }
+
+  .lock-error-msg {
+    margin-top: 20px; font-size: 13px; color: #F85149;
+    height: 20px; text-align: center;
+  }
+
+  /* ═══ Main App ═══ */
+  .app { display: none; }
+  .app.visible { display: block; }
+
+  .container {
+    max-width: 640px; margin: 0 auto; padding: 0 16px 100px;
+  }
+
+  header {
+    padding: 28px 0 20px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .logo {
+    width: 48px; height: 48px; border-radius: 14px;
+    background: linear-gradient(135deg, #58A6FF, #BC8CFF);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 13px; color: #fff;
+    flex-shrink: 0; letter-spacing: -0.5px;
+  }
+  header h1 {
+    font-size: 22px; font-weight: 800; letter-spacing: -0.8px;
+    background: linear-gradient(135deg, #E6EDF3, #8B949E);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  header p { font-size: 13px; color: #8B949E; margin-top: 3px; }
+
+  .api-bar {
+    background: #21262D; border: 1px solid #30363D; border-radius: 12px;
+    padding: 12px 14px; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .api-bar label {
+    font-size: 11px; font-weight: 600; color: #8B949E;
+    white-space: nowrap; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .api-bar input {
+    flex: 1; min-width: 0;
+    background: #0D1117; border: 1px solid #30363D; border-radius: 8px;
+    padding: 8px 10px; color: #E6EDF3; font-size: 13px; font-family: monospace;
+    outline: none;
+  }
+  .api-bar input:focus { border-color: #58A6FF; }
+  .api-bar .status {
+    width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+    background: #30363D; transition: background 0.3s;
+  }
+  .api-bar .status.active { background: #3FB950; }
+  .api-info {
+    font-size: 11px; color: #6E7681; margin-bottom: 18px; padding-left: 4px; line-height: 1.6;
+  }
+  .api-info a { color: #58A6FF; text-decoration: none; }
+
+  .save-row {
+    display: flex; align-items: center; gap: 8px;
+    margin: -4px 0 16px 4px;
+  }
+  .save-row label { font-size: 12px; color: #6E7681; cursor: pointer; }
+  .save-row input[type=checkbox] { accent-color: #58A6FF; cursor: pointer; }
+
+  .input-box {
+    position: relative; background: #21262D; border-radius: 16px;
+    border: 1px solid #30363D; overflow: hidden; display: flex; align-items: flex-end;
+  }
+  .input-box textarea {
+    flex: 1; background: transparent; border: none; outline: none;
+    color: #E6EDF3; font-size: 16px; padding: 14px 56px 14px 16px;
+    font-family: inherit; resize: none; line-height: 1.5;
+  }
+  .input-box textarea::placeholder { color: #484F58; }
+  .send-btn {
+    position: absolute; right: 8px; bottom: 8px;
+    width: 40px; height: 40px; border-radius: 12px;
+    background: linear-gradient(135deg, #58A6FF, #BC8CFF);
+    border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: opacity 0.2s;
+  }
+  .send-btn:disabled { opacity: 0.4; cursor: default; }
+  .send-btn:active:not(:disabled) { transform: scale(0.95); }
+  .send-btn svg { width: 20px; height: 20px; }
+
+  .error-msg { color: #F85149; font-size: 13px; margin-top: 8px; padding-left: 4px; }
+
+  .chips-section { margin-top: 18px; margin-bottom: 24px; }
+  .chips-label {
+    font-size: 11px; color: #6E7681; margin-bottom: 10px;
+    font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .chips-wrap {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .chips-wrap::-webkit-scrollbar { display: none; }
+  .chip {
+    padding: 8px 14px; border-radius: 20px;
+    background: #21262D; border: 1px solid #30363D;
+    color: #8B949E; font-size: 13px; font-family: inherit;
+    cursor: pointer; transition: all 0.2s; white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .chip:active { background: #30363D; border-color: #58A6FF; color: #C9D1D9; }
+
+  .results { display: flex; flex-direction: column; gap: 16px; }
+
+  .card {
+    background: #21262D; border-radius: 16px; border: 1px solid #30363D;
+    padding: 20px; animation: fadeUp 0.35s ease;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-top {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px; gap: 10px;
+  }
+  .korean-text { font-size: 17px; font-weight: 700; color: #E6EDF3; }
+  .badge {
+    font-size: 10px; font-weight: 600; padding: 4px 9px;
+    border-radius: 20px; white-space: nowrap; flex-shrink: 0;
+  }
+
+  .main-box {
+    background: linear-gradient(135deg, rgba(88,166,255,0.08), rgba(188,140,255,0.08));
+    border-radius: 12px; padding: 16px; margin-bottom: 14px;
+    border: 1px solid rgba(88,166,255,0.15);
+  }
+  .main-label {
+    font-size: 10px; font-weight: 700; color: #58A6FF;
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;
+  }
+  .main-text {
+    font-size: 20px; font-weight: 700; color: #F0F6FC;
+    line-height: 1.4; letter-spacing: -0.3px; word-break: break-word;
+  }
+
+  .alt-label {
+    font-size: 10px; font-weight: 700; color: #6E7681;
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
+  }
+  .alt-section { margin-bottom: 14px; }
+  .alt-row {
+    display: flex; flex-direction: column; gap: 4px;
+    padding: 10px 0; border-bottom: 1px solid #30363D;
+  }
+  .alt-row:last-child { border-bottom: none; }
+  .alt-top { display: flex; align-items: center; gap: 8px; }
+  .alt-icon { font-size: 15px; }
+  .alt-expr { font-size: 15px; font-weight: 600; color: #C9D1D9; word-break: break-word; }
+  .alt-context { font-size: 12px; color: #6E7681; line-height: 1.4; padding-left: 27px; }
+
+  .note-box {
+    display: flex; align-items: flex-start; gap: 10px;
+    background: rgba(187,128,9,0.06); border: 1px solid rgba(187,128,9,0.15);
+    border-radius: 10px; padding: 12px;
+  }
+  .note-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+  .note-text { font-size: 13px; color: #E3B341; line-height: 1.55; }
+
+  .copy-btn {
+    margin-top: 12px; padding: 8px 16px; border-radius: 8px;
+    background: #30363D; border: 1px solid #484F58;
+    color: #8B949E; font-size: 12px; font-family: inherit;
+    cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .copy-btn:active { background: #3FB950; color: #fff; border-color: #3FB950; }
+  .copy-btn.copied { background: #238636; color: #fff; border-color: #238636; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner {
+    width: 20px; height: 20px;
+    border: 2.5px solid rgba(255,255,255,0.3);
+    border-top-color: #fff; border-radius: 50%;
+    display: inline-block; animation: spin 0.7s linear infinite;
+  }
+
+  .install-banner {
+    background: linear-gradient(135deg, rgba(88,166,255,0.1), rgba(188,140,255,0.1));
+    border: 1px solid rgba(88,166,255,0.2);
+    border-radius: 12px; padding: 14px 16px; margin-bottom: 18px;
+    display: none; align-items: center; gap: 12px;
+  }
+  .install-banner.show { display: flex; }
+  .install-banner p { flex: 1; font-size: 13px; color: #C9D1D9; line-height: 1.4; }
+  .install-btn {
+    padding: 8px 16px; border-radius: 8px; border: none;
+    background: #58A6FF; color: #fff; font-size: 13px;
+    font-family: inherit; font-weight: 600; cursor: pointer; white-space: nowrap;
+  }
+  .dismiss-btn {
+    background: none; border: none; color: #6E7681;
+    font-size: 18px; cursor: pointer; padding: 4px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ Lock Screen ═══ -->
+<div class="lock-screen" id="lockScreen">
+  <div class="lock-logo">🔒</div>
+  <div class="lock-title">생활영어 번역기</div>
+  <div class="lock-sub">비밀번호 4자리를 입력하세요</div>
+
+  <div class="pin-dots">
+    <div class="pin-dot" id="dot0"></div>
+    <div class="pin-dot" id="dot1"></div>
+    <div class="pin-dot" id="dot2"></div>
+    <div class="pin-dot" id="dot3"></div>
+  </div>
+
+  <div class="pin-pad">
+    <button class="pin-key" onclick="pinInput('1')">1</button>
+    <button class="pin-key" onclick="pinInput('2')">2</button>
+    <button class="pin-key" onclick="pinInput('3')">3</button>
+    <button class="pin-key" onclick="pinInput('4')">4</button>
+    <button class="pin-key" onclick="pinInput('5')">5</button>
+    <button class="pin-key" onclick="pinInput('6')">6</button>
+    <button class="pin-key" onclick="pinInput('7')">7</button>
+    <button class="pin-key" onclick="pinInput('8')">8</button>
+    <button class="pin-key" onclick="pinInput('9')">9</button>
+    <button class="pin-key empty"></button>
+    <button class="pin-key" onclick="pinInput('0')">0</button>
+    <button class="pin-key del" onclick="pinDelete()">⌫</button>
+  </div>
+
+  <div class="lock-error-msg" id="lockError"></div>
+</div>
+
+<!-- ═══ Main App ═══ -->
+<div class="app" id="mainApp">
+<div class="container">
+  <header>
+    <div class="logo">한→EN</div>
+    <div>
+      <h1>생활영어 번역기</h1>
+      <p>미국인이 실제로 쓰는 자연스러운 영어</p>
+    </div>
+  </header>
+
+  <div class="install-banner" id="installBanner">
+    <p>📱 홈 화면에 앱으로 설치할 수 있어요!</p>
+    <button class="install-btn" id="installBtn">설치</button>
+    <button class="dismiss-btn" id="dismissBtn">✕</button>
+  </div>
+
+  <div class="api-bar">
+    <label>API Key</label>
+    <input type="password" id="apiKey" placeholder="sk-ant-..." />
+    <div class="status" id="keyStatus"></div>
+  </div>
+  <div class="save-row">
+    <input type="checkbox" id="saveKey" checked>
+    <label for="saveKey">API 키 기억하기</label>
+  </div>
+  <p class="api-info">
+    <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a>에서 API 키를 발급받으세요.
+  </p>
+
+  <div class="input-box">
+    <textarea id="inputText" rows="2" placeholder="번역할 한국어를 입력하세요..."></textarea>
+    <button class="send-btn" id="sendBtn" disabled>
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="22" y1="2" x2="11" y2="13"/>
+        <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+      </svg>
+    </button>
+  </div>
+  <p class="error-msg" id="errorMsg" style="display:none"></p>
+
+  <div class="chips-section">
+    <p class="chips-label">이런 표현을 시도해보세요</p>
+    <div class="chips-wrap" id="chips"></div>
+  </div>
+
+  <div class="results" id="results"></div>
+</div>
+</div>
+
+<script>
+// ─── PIN Lock ───
+const CORRECT_PIN = "0818";
+let currentPin = "";
+let attempts = 0;
+
+// Check if already authenticated this session
+if (sessionStorage.getItem("unlocked") === "true") {
+  document.getElementById("lockScreen").classList.add("unlocked");
+  document.getElementById("mainApp").classList.add("visible");
+}
+
+function pinInput(num) {
+  if (currentPin.length >= 4) return;
+  currentPin += num;
+  updateDots();
+
+  if (currentPin.length === 4) {
+    setTimeout(() => {
+      if (currentPin === CORRECT_PIN) {
+        unlockApp();
+      } else {
+        attempts++;
+        showPinError();
+        currentPin = "";
+        setTimeout(() => {
+          updateDots();
+          document.getElementById("lockError").textContent = "";
+        }, 600);
+      }
+    }, 200);
+  }
+}
+
+function pinDelete() {
+  if (currentPin.length > 0) {
+    currentPin = currentPin.slice(0, -1);
+    updateDots();
+  }
+}
+
+function updateDots() {
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById("dot" + i);
+    dot.classList.toggle("filled", i < currentPin.length);
+    dot.classList.remove("error");
+  }
+}
+
+function showPinError() {
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById("dot" + i);
+    dot.classList.remove("filled");
+    dot.classList.add("error");
+  }
+  const msg = attempts >= 3 ? "비밀번호를 다시 확인해주세요" : "비밀번호가 틀렸습니다";
+  document.getElementById("lockError").textContent = msg;
+}
+
+function unlockApp() {
+  sessionStorage.setItem("unlocked", "true");
+  document.getElementById("lockScreen").classList.add("unlocked");
+  document.getElementById("mainApp").classList.add("visible");
+  setTimeout(() => {
+    document.getElementById("lockScreen").style.display = "none";
+  }, 400);
+}
+
+// ─── Main App ───
+const SYSTEM_PROMPT = `You are an expert translator who helps Korean speakers communicate naturally in American English.
+
+Your job:
+1. Translate the Korean input into the most natural, commonly-used American English expression.
+2. Provide 2-3 alternative ways Americans might say the same thing (from formal to casual).
+3. Give a brief cultural/usage note explaining when and where each expression is typically used.
+
+IMPORTANT RULES:
+- Focus on how REAL Americans actually speak in daily life, not textbook English.
+- Include the situational context.
+- If it's a sign/notice, give the exact wording Americans would use on an actual sign.
+- If it's spoken language, give the conversational version real people use.
+- Keep explanations concise and practical.
+
+Respond ONLY in this JSON format with no markdown fences:
+{
+  "korean_input": "the original Korean",
+  "main_translation": "the most natural/common American English expression",
+  "alternatives": [
+    {"expression": "alternative 1", "formality": "formal/casual/sign", "context": "when to use this"},
+    {"expression": "alternative 2", "formality": "formal/casual/sign", "context": "when to use this"}
+  ],
+  "cultural_note": "brief cultural insight about usage",
+  "category": "sign/notice | spoken | written | texting"
+}`;
+
+const EXAMPLES = [
+  "외부음식 반입금지", "자리 있어요?", "계산해 주세요", "여기 앉아도 되나요?",
+  "포장해 주세요", "환불 가능한가요?", "길 좀 알려주세요", "조용히 해주세요",
+  "주차금지", "영업중 / 준비중", "죄송한데 지나갈게요", "한 번 입어봐도 돼요?"
+];
+
+const CATEGORY_MAP = {
+  "sign/notice": { bg: "#FFF3E0", text: "#E65100", label: "표지/안내문" },
+  "spoken":      { bg: "#E8F5E9", text: "#2E7D32", label: "회화" },
+  "written":     { bg: "#E3F2FD", text: "#1565C0", label: "문서/서면" },
+  "texting":     { bg: "#F3E5F5", text: "#7B1FA2", label: "문자/채팅" },
+};
+const FORMALITY_ICON = { formal: "👔", casual: "😊", sign: "🪧", written: "📝" };
+
+const apiKeyInput = document.getElementById("apiKey");
+const keyStatus   = document.getElementById("keyStatus");
+const inputText   = document.getElementById("inputText");
+const sendBtn     = document.getElementById("sendBtn");
+const errorMsg    = document.getElementById("errorMsg");
+const resultsDiv  = document.getElementById("results");
+const chipsDiv    = document.getElementById("chips");
+const saveKeyBox  = document.getElementById("saveKey");
+
+let loading = false;
+
+const savedKey = localStorage.getItem("anthropic_api_key");
+if (savedKey) { apiKeyInput.value = savedKey; keyStatus.classList.add("active"); }
+
+apiKeyInput.addEventListener("input", () => {
+  const hasKey = apiKeyInput.value.trim().length > 10;
+  keyStatus.classList.toggle("active", hasKey);
+  if (saveKeyBox.checked && hasKey) localStorage.setItem("anthropic_api_key", apiKeyInput.value.trim());
+  updateSendBtn();
+});
+
+saveKeyBox.addEventListener("change", () => {
+  if (saveKeyBox.checked && apiKeyInput.value.trim().length > 10) {
+    localStorage.setItem("anthropic_api_key", apiKeyInput.value.trim());
+  } else if (!saveKeyBox.checked) {
+    localStorage.removeItem("anthropic_api_key");
+  }
+});
+
+function updateSendBtn() {
+  sendBtn.disabled = loading || !inputText.value.trim() || apiKeyInput.value.trim().length < 10;
+}
+inputText.addEventListener("input", updateSendBtn);
+inputText.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); if (!sendBtn.disabled) translate(inputText.value); }
+});
+sendBtn.addEventListener("click", () => { if (!sendBtn.disabled) translate(inputText.value); });
+
+EXAMPLES.forEach(ex => {
+  const btn = document.createElement("button");
+  btn.className = "chip";
+  btn.textContent = ex;
+  btn.addEventListener("click", () => { inputText.value = ex; translate(ex); });
+  chipsDiv.appendChild(btn);
+});
+
+async function translate(text) {
+  if (!text.trim() || loading) return;
+  loading = true; updateSendBtn();
+  sendBtn.innerHTML = '<span class="spinner"></span>';
+  errorMsg.style.display = "none";
+
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKeyInput.value.trim(),
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true",
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1000,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: "user", content: text.trim() }],
+      }),
+    });
+
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.error?.message || `API 오류 (${res.status})`);
+    }
+
+    const data = await res.json();
+    const raw = (data.content || []).map(i => i.text || "").join("");
+    const cleaned = raw.replace(/```json|```/g, "").trim();
+    const parsed = JSON.parse(cleaned);
+    renderCard(parsed);
+    inputText.value = "";
+  } catch (err) {
+    errorMsg.textContent = err.message || "번역 중 오류가 발생했습니다.";
+    errorMsg.style.display = "block";
+  } finally {
+    loading = false; updateSendBtn();
+    sendBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>`;
+  }
+}
+
+function renderCard(r) {
+  const cat = CATEGORY_MAP[r.category] || CATEGORY_MAP.spoken;
+  let altsHTML = "";
+  if (r.alternatives?.length) {
+    altsHTML = `<div class="alt-section"><div class="alt-label">다른 표현들</div>
+      ${r.alternatives.map(a => `
+        <div class="alt-row">
+          <div class="alt-top">
+            <span class="alt-icon">${FORMALITY_ICON[a.formality] || "💬"}</span>
+            <span class="alt-expr">${esc(a.expression)}</span>
+          </div>
+          <span class="alt-context">${esc(a.context)}</span>
+        </div>`).join("")}
+    </div>`;
+  }
+  let noteHTML = "";
+  if (r.cultural_note) {
+    noteHTML = `<div class="note-box"><span class="note-icon">💡</span><span class="note-text">${esc(r.cultural_note)}</span></div>`;
+  }
+  const allText = [r.main_translation, ...(r.alternatives||[]).map(a=>a.expression)].join('\n');
+  const card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML = `
+    <div class="card-top">
+      <span class="korean-text">${esc(r.korean_input)}</span>
+      <span class="badge" style="background:${cat.bg};color:${cat.text}">${cat.label}</span>
+    </div>
+    <div class="main-box">
+      <div class="main-label">가장 자연스러운 표현</div>
+      <div class="main-text">${esc(r.main_translation)}</div>
+    </div>
+    ${altsHTML}
+    ${noteHTML}
+    <button class="copy-btn" onclick="copyText(this, '${esc(allText).replace(/'/g,"\\'")}')">📋 표현 복사하기</button>
+  `;
+  resultsDiv.prepend(card);
+  card.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function copyText(btn, text) {
+  navigator.clipboard.writeText(text.replace(/\\n/g, '\n')).then(() => {
+    btn.classList.add("copied"); btn.textContent = "✅ 복사됨!";
+    setTimeout(() => { btn.classList.remove("copied"); btn.innerHTML = "📋 표현 복사하기"; }, 1500);
+  });
+}
+
+function esc(str) { const d = document.createElement("div"); d.textContent = str || ""; return d.innerHTML; }
+
+// ─── PWA Install ───
+let deferredPrompt;
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault(); deferredPrompt = e;
+  document.getElementById("installBanner").classList.add("show");
+});
+document.getElementById("installBtn").addEventListener("click", async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  document.getElementById("installBanner").classList.remove("show");
+});
+document.getElementById("dismissBtn").addEventListener("click", () => {
+  document.getElementById("installBanner").classList.remove("show");
+});
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+</script>
+</body>
+</html>
