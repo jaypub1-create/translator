@@ -197,12 +197,52 @@
 
   /* ─── API Key ─── */
   .api-section {
+    margin-bottom: 20px;
+  }
+
+  /* Connected mini bar */
+  .api-connected {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 16px;
+    display: none; align-items: center; justify-content: space-between;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s;
+  }
+  .api-connected.show { display: flex; }
+  .api-connected:active { background: var(--bg-warm); }
+  .api-connected-left {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .api-connected-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #22C55E; box-shadow: 0 0 8px rgba(34,197,94,0.4);
+  }
+  .api-connected-text {
+    font-size: 12px; font-weight: 600; color: var(--teal);
+  }
+  .api-connected-edit {
+    font-size: 11px; color: var(--text-tertiary); font-weight: 500;
+  }
+
+  /* Expanded form */
+  .api-form {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 18px;
-    margin-bottom: 20px;
     box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .api-form.hidden {
+    max-height: 0; padding: 0 18px; border-color: transparent;
+    opacity: 0; margin-bottom: 0; box-shadow: none;
+  }
+  .api-form.visible {
+    max-height: 200px; opacity: 1;
   }
   .api-top {
     display: flex; align-items: center; justify-content: space-between;
@@ -504,22 +544,31 @@
 
   <!-- API Key -->
   <div class="api-section">
-    <div class="api-top">
-      <span class="api-label">API Key</span>
-      <div class="api-status">
-        <div class="dot" id="keyStatus"></div>
-        <span id="statusText">미연결</span>
+    <div class="api-connected" id="apiConnected" onclick="toggleApiForm()">
+      <div class="api-connected-left">
+        <div class="api-connected-dot"></div>
+        <span class="api-connected-text">API 연결됨</span>
       </div>
+      <span class="api-connected-edit">변경 →</span>
     </div>
-    <div class="api-input-row">
-      <input type="password" id="apiKey" placeholder="sk-ant-..." />
-    </div>
-    <div class="api-bottom">
-      <label class="save-toggle">
-        <input type="checkbox" id="saveKey" checked>
-        키 기억하기
-      </label>
-      <a class="api-link" href="https://console.anthropic.com/settings/keys" target="_blank">키 발급받기 →</a>
+    <div class="api-form visible" id="apiForm">
+      <div class="api-top">
+        <span class="api-label">API Key</span>
+        <div class="api-status">
+          <div class="dot" id="keyStatus"></div>
+          <span id="statusText">미연결</span>
+        </div>
+      </div>
+      <div class="api-input-row">
+        <input type="password" id="apiKey" placeholder="sk-ant-..." />
+      </div>
+      <div class="api-bottom">
+        <label class="save-toggle">
+          <input type="checkbox" id="saveKey" checked>
+          키 기억하기
+        </label>
+        <a class="api-link" href="https://console.anthropic.com/settings/keys" target="_blank">키 발급받기 →</a>
+      </div>
     </div>
   </div>
 
@@ -643,6 +692,8 @@ const FORMALITY_ICON = { formal: "👔", casual: "💬", sign: "🪧", written: 
 const apiKeyInput = document.getElementById("apiKey");
 const keyStatus = document.getElementById("keyStatus");
 const statusText = document.getElementById("statusText");
+const apiConnected = document.getElementById("apiConnected");
+const apiForm = document.getElementById("apiForm");
 const inputText = document.getElementById("inputText");
 const sendBtn = document.getElementById("sendBtn");
 const errorMsg = document.getElementById("errorMsg");
@@ -653,11 +704,41 @@ const charCount = document.getElementById("charCount");
 
 let loading = false;
 
+function updateApiVisibility(animate) {
+  const hasKey = apiKeyInput.value.trim().length > 10;
+  if (hasKey) {
+    apiConnected.classList.add("show");
+    apiForm.classList.remove("visible");
+    apiForm.classList.add("hidden");
+  } else {
+    apiConnected.classList.remove("show");
+    apiForm.classList.remove("hidden");
+    apiForm.classList.add("visible");
+  }
+}
+
+function toggleApiForm() {
+  const isHidden = apiForm.classList.contains("hidden");
+  if (isHidden) {
+    apiConnected.classList.remove("show");
+    apiForm.classList.remove("hidden");
+    apiForm.classList.add("visible");
+    setTimeout(() => apiKeyInput.focus(), 100);
+  } else {
+    if (apiKeyInput.value.trim().length > 10) {
+      apiConnected.classList.add("show");
+      apiForm.classList.remove("visible");
+      apiForm.classList.add("hidden");
+    }
+  }
+}
+
 const savedKey = localStorage.getItem("anthropic_api_key");
 if (savedKey) {
   apiKeyInput.value = savedKey;
   keyStatus.classList.add("active");
   statusText.textContent = "연결됨";
+  updateApiVisibility();
 }
 
 apiKeyInput.addEventListener("input", () => {
@@ -666,6 +747,10 @@ apiKeyInput.addEventListener("input", () => {
   statusText.textContent = hasKey ? "연결됨" : "미연결";
   if (saveKeyBox.checked && hasKey) localStorage.setItem("anthropic_api_key", apiKeyInput.value.trim());
   updateSendBtn();
+});
+
+apiKeyInput.addEventListener("blur", () => {
+  setTimeout(() => updateApiVisibility(), 200);
 });
 
 saveKeyBox.addEventListener("change", () => {
